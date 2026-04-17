@@ -1,148 +1,92 @@
 import streamlit as st
+import pandas as pd
+import numpy as np
+import joblib
 import folium
 from streamlit_folium import st_folium
-from geopy.geocoders import Nominatim
-import datetime
 import networkx as nx
+
+from geopy.geocoders import Nominatim
+from geopy.exc import GeocoderUnavailable, GeocoderTimedOut
+
 
 st.set_page_config(page_title="Smart Traffic System", layout="wide")
 
-st.title("🚦 Smart Traffic Intelligence System")
+st.title("🚦 Smart Traffic Management System")
 
 
-if "show_map" not in st.session_state:
-    st.session_state.show_map = False
-
-
-st.subheader("📍 Enter Travel Details")
-
-col1, col2 = st.columns(2)
-
-with col1:
-    start_location = st.text_input("Start Location", "Chennai")
-
-with col2:
-    end_location = st.text_input("Destination", "Bangalore")
-
-col3, col4, col5 = st.columns(3)
-
-with col3:
-    travel_time = st.time_input("Time of Travel", datetime.time(12, 0))
-
-with col4:
-    weather = st.selectbox("Weather", ["Clear", "Rain", "Heavy Rain"])
-
-with col5:
-    travel_date = st.date_input("Date of Travel")
-
-event = st.checkbox("Event / Festival?")
-
-
-hour = travel_time.hour
-
-
-rain = 0
-if weather == "Rain":
-    rain = 5
-elif weather == "Heavy Rain":
-    rain = 9
-
-
-if st.button("🚀 Show Route & Prediction"):
-    st.session_state.show_map = True
-
-
-geolocator = Nominatim(user_agent="traffic_app")
+geolocator = Nominatim(user_agent="smart_traffic_app")
 
 def get_coords(place):
-    location = geolocator.geocode(place)
-    if location:
-        return (location.latitude, location.longitude)
-    return None
-
-
-if st.session_state.show_map:
-
-    start_coords = get_coords(start_location)
-    end_coords = get_coords(end_location)
-
-    if start_coords and end_coords:
-
-        
-        mid_lat = (start_coords[0] + end_coords[0]) / 2
-        mid_lon = (start_coords[1] + end_coords[1]) / 2
-
-        m = folium.Map(location=[mid_lat, mid_lon], zoom_start=6)
-
-        folium.Marker(start_coords, tooltip="Start", icon=folium.Icon(color="green")).add_to(m)
-        folium.Marker(end_coords, tooltip="End", icon=folium.Icon(color="red")).add_to(m)
-
-        folium.PolyLine([start_coords, end_coords], color="blue", weight=5).add_to(m)
-
-        st.subheader("🗺 Route Map")
-        st_folium(m, width=1000, height=500)
-
-        
-        traffic = 300
-
-        if hour in [8, 9, 18, 19]:
-            traffic *= 1.6
-        elif hour in [11, 12, 13, 14]:
-            traffic *= 0.85
-
-        if rain > 5:
-            traffic *= 1.2
-
-        if event:
-            traffic *= 1.4
-
-        st.subheader("📊 Traffic Prediction")
-        st.write(f"Estimated Traffic: {traffic:.2f}")
-
-        
-        st.subheader("🕒 Travel Recommendation")
-
-        if traffic < 350:
-            st.success("✅ Good time to travel")
+    try:
+        location = geolocator.geocode(place, timeout=5)
+        if location:
+            return (location.latitude, location.longitude)
         else:
-            st.error("⚠️ Avoid this time")
+            return (None, None)
+    except (GeocoderUnavailable, GeocoderTimedOut):
+        return (None, None)
 
-       
-        st.subheader("🧠 AI Explanation")
 
-        reasons = []
+st.sidebar.header("📍 Enter Locations")
 
-        if weather != "Clear":
-            reasons.append("Weather conditions")
+start_location = st.sidebar.text_input("Start Location", "Chennai")
+end_location = st.sidebar.text_input("End Location", "Bangalore")
 
-        if hour in [8, 9, 18, 19]:
-            reasons.append("Peak hour")
 
-        if event:
-            reasons.append("Event")
+start_coords = get_coords(start_location)
+end_coords = get_coords(end_location)
 
-        if reasons:
-            st.write("Traffic influenced by:", ", ".join(reasons))
-        else:
-            st.write("Traffic conditions normal")
+if start_coords[0] is None:
+    st.error("⚠️ Unable to fetch START location. Try another place.")
+    st.stop()
 
-        
-        st.subheader("🧠 Smart Routing")
+if end_coords[0] is None:
+    st.error("⚠️ Unable to fetch END location. Try another place.")
+    st.stop()
 
-        G = nx.Graph()
-        G.add_edge("A", "B", weight=5)
-        G.add_edge("B", "C", weight=3)
-        G.add_edge("A", "C", weight=10)
 
-        path = nx.shortest_path(G, "A", "C", weight="weight")
+st.subheader("🗺 Route Visualization")
 
-        st.write("Optimized Route:", path)
+m = folium.Map(location=start_coords, zoom_start=6)
 
-        
-        st.subheader("🌱 Carbon Emission")
+folium.Marker(start_coords, tooltip="Start", icon=folium.Icon(color="green")).add_to(m)
+folium.Marker(end_coords, tooltip="End", icon=folium.Icon(color="red")).add_to(m)
 
-        emission = traffic * 0.2
-        st.write(f"CO2 Emission: {emission:.2f}")
 
-    else:
-        st.error("❌ Location not found. Try different names.")
+folium.PolyLine([start_coords, end_coords], color="blue", weight=3).add_to(m)
+
+st_folium(m, width=700, height=500)
+
+
+st.subheader("📊 Traffic Prediction")
+
+hours = np.arange(0, 24)
+traffic = 300 + 50 * np.sin(hours / 3) + np.random.randint(-20, 20, 24)
+
+df = pd.DataFrame({
+    "Hour": hours,
+    "Traffic": traffic
+})
+
+st.line_chart(df.set_index("Hour"))
+
+
+st.subheader("🚦 Recommendation")
+
+best_time = df.loc[df["Traffic"].idxmin(), "Hour"]
+
+st.success(f"✅ Best time to travel: {int(best_time)}:00 hrs")
+
+
+st.subheader("🛣 Route Optimization")
+
+G = nx.Graph()
+
+G.add_edge("A", "B", weight=4)
+G.add_edge("B", "C", weight=3)
+G.add_edge("A", "C", weight=10)
+
+path = nx.shortest_path(G, "A", "C", weight="weight")
+
+st.write(f"Optimal Route: {path}")
