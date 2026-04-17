@@ -6,3 +6,4 @@ matplotlib
 joblib
 folium
 streamlit-folium
+geopy
