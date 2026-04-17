@@ -13,7 +13,7 @@ data = pd.read_csv("data/master_dataset.csv")
 
 print("✅ Dataset Loaded")
 
-# Encode categorical columns
+
 le_weather = LabelEncoder()
 le_vehicle = LabelEncoder()
 le_congestion = LabelEncoder()
@@ -22,7 +22,7 @@ data["weather"] = le_weather.fit_transform(data["weather"])
 data["vehicle_type"] = le_vehicle.fit_transform(data["vehicle_type"])
 data["congestion_level"] = le_congestion.fit_transform(data["congestion_level"])
 
-# Features
+
 features = [
     "traffic_volume",
     "avg_speed",
@@ -36,9 +36,7 @@ features = [
 
 X = data[features]
 
-# =========================
-# MODEL 1: CONGESTION
-# =========================
+
 y_congestion = data["congestion_level"]
 
 X_train, X_test, y_train, y_test = train_test_split(X, y_congestion, test_size=0.2)
@@ -51,9 +49,7 @@ print("🚦 Congestion Accuracy:", accuracy_score(y_test, preds))
 
 joblib.dump(rf_model, "models/congestion_model.pkl")
 
-# =========================
-# MODEL 2: ACCIDENT
-# =========================
+
 y_accident = data["accident"]
 
 X_train, X_test, y_train, y_test = train_test_split(X, y_accident, test_size=0.2)
@@ -62,8 +58,8 @@ xgb_model = XGBClassifier()
 xgb_model.fit(X_train, y_train)
 
 preds = xgb_model.predict(X_test)
-print("🚑 Accident Accuracy:", accuracy_score(y_test, preds))
+print("Accident Accuracy:", accuracy_score(y_test, preds))
 
 joblib.dump(xgb_model, "models/accident_model.pkl")
 
-print("✅ Models trained successfully!")
+print(" Models trained successfully!")

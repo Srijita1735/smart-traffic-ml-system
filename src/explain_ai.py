@@ -3,9 +3,7 @@ import pandas as pd
 import joblib
 import numpy as np
 
-# -----------------------------
-# LOAD DATA
-# -----------------------------
+
 data = pd.read_csv("data/master_dataset.csv")
 
 features = [

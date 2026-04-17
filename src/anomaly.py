@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-# Load data
+
 data = pd.read_csv("data/master_dataset.csv")
 
 traffic = data["traffic_volume"]
@@ -11,8 +11,8 @@ std = traffic.std()
 
 threshold = mean + 2 * std
 
-print("\n⚠️ ANOMALY DETECTION:\n")
+print("\n ANOMALY DETECTION:\n")
 
 for i, val in enumerate(traffic[-50:]):
     if val > threshold:
-        print(f"🚨 Anomaly detected at index {i}: Traffic = {val}")
+        print(f" Anomaly detected at index {i}: Traffic = {val}")

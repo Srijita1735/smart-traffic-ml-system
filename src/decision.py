@@ -2,7 +2,7 @@ rain = True
 event = True
 traffic = 480
 
-print("\n🎯 DECISION SYSTEM:\n")
+print("\n DECISION SYSTEM:\n")
 
 if rain and event:
     print("➡ Apply dynamic rerouting")

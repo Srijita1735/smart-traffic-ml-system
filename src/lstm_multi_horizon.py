@@ -5,13 +5,13 @@ import torch.nn as nn
 from sklearn.preprocessing import MinMaxScaler
 import joblib
 
-# Load dataset
+
 data = pd.read_csv("data/master_dataset.csv")
 
 data["datetime"] = pd.to_datetime(data["datetime"])
 data = data.sort_values("datetime")
 
-# Features
+
 features = [
     "traffic_volume",
     "temperature",
@@ -22,13 +22,11 @@ features = [
 
 values = data[features].values
 
-# Scale
+
 scaler = MinMaxScaler()
 scaled = scaler.fit_transform(values)
 
-# -----------------------------
-# MULTI-HORIZON SEQUENCES
-# -----------------------------
+
 def create_sequences(data, seq_length=24, horizon=48):
     X, y = [], []
     for i in range(len(data) - seq_length - horizon):
@@ -41,14 +39,12 @@ X, y = create_sequences(scaled)
 X = torch.tensor(X, dtype=torch.float32)
 y = torch.tensor(y, dtype=torch.float32)
 
-# Split
+
 split = int(0.8 * len(X))
 X_train, X_test = X[:split], X[split:]
 y_train, y_test = y[:split], y[split:]
 
-# -----------------------------
-# MODEL
-# -----------------------------
+
 class MultiLSTM(nn.Module):
     def __init__(self):
         super().__init__()
@@ -65,7 +61,7 @@ model = MultiLSTM()
 criterion = nn.MSELoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
-# Train
+
 epochs = 30
 
 for epoch in range(epochs):
@@ -80,8 +76,8 @@ for epoch in range(epochs):
     
     print(f"Epoch {epoch+1}, Loss: {loss.item()}")
 
-# Save
+
 torch.save(model.state_dict(), "models/multi_lstm.pth")
 joblib.dump(scaler, "models/multi_scaler.pkl")
 
-print("✅ Multi-horizon LSTM trained!")
+print(" Multi-horizon LSTM trained!")

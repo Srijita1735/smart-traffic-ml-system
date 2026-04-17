@@ -9,15 +9,11 @@ st.set_page_config(page_title="Smart Traffic System", layout="wide")
 
 st.title("🚦 Smart Traffic Intelligence System")
 
-# -----------------------------
-# SESSION STATE
-# -----------------------------
+
 if "show_map" not in st.session_state:
     st.session_state.show_map = False
 
-# -----------------------------
-# USER INPUTS (FINAL UI)
-# -----------------------------
+
 st.subheader("📍 Enter Travel Details")
 
 col1, col2 = st.columns(2)
@@ -41,25 +37,21 @@ with col5:
 
 event = st.checkbox("Event / Festival?")
 
-# Convert time to hour
+
 hour = travel_time.hour
 
-# Convert weather
+
 rain = 0
 if weather == "Rain":
     rain = 5
 elif weather == "Heavy Rain":
     rain = 9
 
-# -----------------------------
-# BUTTON
-# -----------------------------
+
 if st.button("🚀 Show Route & Prediction"):
     st.session_state.show_map = True
 
-# -----------------------------
-# GEOLOCATION
-# -----------------------------
+
 geolocator = Nominatim(user_agent="traffic_app")
 
 def get_coords(place):
@@ -68,9 +60,7 @@ def get_coords(place):
         return (location.latitude, location.longitude)
     return None
 
-# -----------------------------
-# MAIN OUTPUT
-# -----------------------------
+
 if st.session_state.show_map:
 
     start_coords = get_coords(start_location)
@@ -78,9 +68,7 @@ if st.session_state.show_map:
 
     if start_coords and end_coords:
 
-        # -----------------------------
-        # MAP
-        # -----------------------------
+        
         mid_lat = (start_coords[0] + end_coords[0]) / 2
         mid_lon = (start_coords[1] + end_coords[1]) / 2
 
@@ -94,9 +82,7 @@ if st.session_state.show_map:
         st.subheader("🗺 Route Map")
         st_folium(m, width=1000, height=500)
 
-        # -----------------------------
-        # TRAFFIC MODEL
-        # -----------------------------
+        
         traffic = 300
 
         if hour in [8, 9, 18, 19]:
@@ -113,9 +99,7 @@ if st.session_state.show_map:
         st.subheader("📊 Traffic Prediction")
         st.write(f"Estimated Traffic: {traffic:.2f}")
 
-        # -----------------------------
-        # RECOMMENDATION
-        # -----------------------------
+        
         st.subheader("🕒 Travel Recommendation")
 
         if traffic < 350:
@@ -123,9 +107,7 @@ if st.session_state.show_map:
         else:
             st.error("⚠️ Avoid this time")
 
-        # -----------------------------
-        # AI EXPLANATION
-        # -----------------------------
+       
         st.subheader("🧠 AI Explanation")
 
         reasons = []
@@ -144,9 +126,7 @@ if st.session_state.show_map:
         else:
             st.write("Traffic conditions normal")
 
-        # -----------------------------
-        # GRAPH ROUTE
-        # -----------------------------
+        
         st.subheader("🧠 Smart Routing")
 
         G = nx.Graph()
@@ -158,9 +138,7 @@ if st.session_state.show_map:
 
         st.write("Optimized Route:", path)
 
-        # -----------------------------
-        # CARBON EMISSION
-        # -----------------------------
+        
         st.subheader("🌱 Carbon Emission")
 
         emission = traffic * 0.2

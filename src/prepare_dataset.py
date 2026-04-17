@@ -1,21 +1,17 @@
 import pandas as pd
 import numpy as np
 
-# Load dataset
 data = pd.read_csv("data/traffic_real.csv")
 
-# Convert datetime
+
 data["datetime"] = pd.to_datetime(data["date_time"])
 
-# -----------------------------
-# CREATE TRAFFIC VOLUME (IMPORTANT)
-# -----------------------------
-# Using weather + time patterns
+
 
 data["hour"] = data["datetime"].dt.hour
 data["day_of_week"] = data["datetime"].dt.dayofweek
 
-# Base traffic pattern
+
 data["traffic_volume"] = (
     200 +
     data["hour"] * 10 +
@@ -24,9 +20,7 @@ data["traffic_volume"] = (
     np.random.randint(-30, 30, len(data))
 )
 
-# -----------------------------
-# ADD OTHER FEATURES
-# -----------------------------
+
 
 data["avg_speed"] = 80 - (data["traffic_volume"] * 0.1)
 
@@ -38,14 +32,14 @@ data["vehicle_type"] = np.random.choice(["car", "bike", "bus"], len(data))
 
 data["location_id"] = 1
 
-# Congestion
+
 data["congestion_level"] = pd.cut(
     data["traffic_volume"],
     bins=[0, 200, 400, 1000],
     labels=["Low", "Medium", "High"]
 )
 
-# Final columns
+
 final_cols = [
     "datetime",
     "traffic_volume",
@@ -64,13 +58,13 @@ final_cols = [
 
 data = data[final_cols]
 
-# Rename for consistency
+
 data = data.rename(columns={
     "weather_type": "weather",
     "rain_p_h": "rain_intensity"
 })
 
-# Save final dataset
+
 data.to_csv("data/master_dataset.csv", index=False)
 
-print("✅ FINAL REAL DATASET READY!")
+print(" FINAL REAL DATASET READY!")

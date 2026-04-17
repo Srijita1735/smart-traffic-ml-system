@@ -4,9 +4,9 @@ areas = {
     "Area C": 500
 }
 
-print("\n⚖️ TRAFFIC FAIRNESS:\n")
+print("\n TRAFFIC FAIRNESS:\n")
 
 for k, v in areas.items():
     print(f"{k}: {v}")
 
-print("\n⚠️ Area C consistently high → needs optimization")
+print("\n Area C consistently high → needs optimization")

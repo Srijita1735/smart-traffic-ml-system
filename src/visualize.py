@@ -5,14 +5,12 @@ import torch.nn as nn
 import matplotlib.pyplot as plt
 import joblib
 
-# Load dataset
+
 data = pd.read_csv("data/master_dataset.csv")
 data["datetime"] = pd.to_datetime(data["datetime"])
 data = data.sort_values("datetime")
 
-# -----------------------------
-# SAME FEATURES AS LSTM MODEL
-# -----------------------------
+
 features = [
     "traffic_volume",
     "temperature",
@@ -23,13 +21,11 @@ features = [
 
 values = data[features].values
 
-# Load scaler
+
 scaler = joblib.load("models/scaler.pkl")
 scaled = scaler.transform(values)
 
-# -----------------------------
-# MODEL DEFINITION (MATCH TRAINING)
-# -----------------------------
+
 class LSTMModel(nn.Module):
     def __init__(self):
         super().__init__()
@@ -44,9 +40,7 @@ model = LSTMModel()
 model.load_state_dict(torch.load("models/traffic_lstm.pth"))
 model.eval()
 
-# -----------------------------
-# CREATE SEQUENCES
-# -----------------------------
+
 def create_sequences(data, seq_length=24):
     X, y = [], []
     for i in range(len(data) - seq_length):
@@ -58,13 +52,10 @@ X, y = create_sequences(scaled)
 
 X = torch.tensor(X, dtype=torch.float32)
 
-# Predictions
+
 with torch.no_grad():
     preds = model(X).numpy()
 
-# -----------------------------
-# INVERSE SCALING
-# -----------------------------
 preds_full = np.zeros((len(preds), 5))
 preds_full[:, 0] = preds.flatten()
 
@@ -74,9 +65,7 @@ actual_full[:, 0] = y
 preds_inv = scaler.inverse_transform(preds_full)[:, 0]
 actual_inv = scaler.inverse_transform(actual_full)[:, 0]
 
-# -----------------------------
-# GRAPH 1: ACTUAL vs PREDICTED
-# -----------------------------
+
 plt.figure()
 plt.plot(actual_inv[:300], label="Actual")
 plt.plot(preds_inv[:300], label="Predicted")
@@ -86,9 +75,7 @@ plt.ylabel("Traffic Volume")
 plt.legend()
 plt.show()
 
-# -----------------------------
-# GRAPH 2: FUTURE PREDICTION
-# -----------------------------
+
 last_seq = scaled[-24:]
 current_seq = torch.tensor(last_seq.reshape(1, 24, 5), dtype=torch.float32)
 
@@ -102,7 +89,7 @@ for _ in range(48):
 
     new = current_seq.numpy()
     
-    # keep other features stable
+  
     next_step = new[:, -1, :].copy()
     next_step[0][0] = pred.item()
     

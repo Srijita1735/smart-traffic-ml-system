@@ -1,14 +1,14 @@
 import numpy as np
 
-# Simulated local models
+
 city1 = np.random.rand(5)
 city2 = np.random.rand(5)
 city3 = np.random.rand(5)
 
-# Federated averaging
+
 global_model = (city1 + city2 + city3) / 3
 
-print("\n🌍 FEDERATED LEARNING:\n")
+print("\n FEDERATED LEARNING:\n")
 print("City1:", city1)
 print("City2:", city2)
 print("City3:", city3)

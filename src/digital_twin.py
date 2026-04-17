@@ -1,4 +1,4 @@
-print("\n🌐 DIGITAL TWIN SIMULATION:\n")
+print("\n DIGITAL TWIN SIMULATION:\n")
 
 scenarios = {
     "Normal": 350,

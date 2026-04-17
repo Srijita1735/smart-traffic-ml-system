@@ -1,4 +1,4 @@
-print("\n📍 DEMAND FORECAST:\n")
+print("\n DEMAND FORECAST:\n")
 
 flows = {
     "Home → Office": 300,

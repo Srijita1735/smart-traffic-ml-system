@@ -4,9 +4,7 @@ import numpy as np
 import pandas as pd
 import joblib
 
-# -----------------------------
-# LOAD DATA
-# -----------------------------
+
 data = pd.read_csv("data/master_dataset.csv")
 
 features = [
@@ -19,13 +17,11 @@ features = [
 
 values = data[features].values
 
-# Load scaler
+
 scaler = joblib.load("models/scaler.pkl")
 scaled = scaler.transform(values)
 
-# -----------------------------
-# MODEL
-# -----------------------------
+
 class LSTMModel(nn.Module):
     def __init__(self):
         super().__init__()
@@ -40,15 +36,13 @@ model = LSTMModel()
 model.load_state_dict(torch.load("models/traffic_lstm.pth"))
 model.eval()
 
-# -----------------------------
-# EVENT IMPACT FUNCTION
-# -----------------------------
+
 last_seq = scaled[-24:]
 
 def predict_event(hour, event_flag):
     temp_seq = last_seq.copy()
 
-    # Update hour
+    
     temp_seq[-1][3] = hour / 23
 
     input_seq = torch.tensor(temp_seq.reshape(1, 24, 5), dtype=torch.float32)
@@ -56,25 +50,23 @@ def predict_event(hour, event_flag):
     with torch.no_grad():
         pred_scaled = model(input_seq).item()
 
-    # Convert to real value
+    
     full = np.zeros((1, 5))
     full[0][0] = pred_scaled
     traffic = scaler.inverse_transform(full)[0][0]
 
-    # 🔥 EVENT LOGIC
+    
     if event_flag:
         traffic *= 1.4  # major surge
 
-    # 🔥 PEAK HOUR BOOST
+    
     if hour in [8, 9, 18, 19]:
         traffic *= 1.2
 
     return traffic
 
-# -----------------------------
-# TEST SCENARIOS
-# -----------------------------
-print("\n🎉 EVENT IMPACT ANALYSIS (IMPROVED):\n")
+
+print("\n EVENT IMPACT ANALYSIS (IMPROVED):\n")
 
 tests = [
     (9, False, "Normal Morning"),
