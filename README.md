@@ -6,7 +6,7 @@ AI-Powered Intelligent Traffic Prediction, Route Optimization & ETA Forecasting 
 
 ## 🌐 Live Demo
 
-👉 https://smart-traffic-ml-system.streamlit.app/
+
 
 ---
 
