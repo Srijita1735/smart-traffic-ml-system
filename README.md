@@ -4,7 +4,6 @@ Intelligent Traffic Management using ML &amp; AI
 
 ## 🌐 Live Demo
 
-👉 https://smart-traffic-ml-system-yesxblujhs8ijyk5cbmgmu.streamlit.app/
 
 ---
 
