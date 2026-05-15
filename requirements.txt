@@ -5,5 +5,5 @@ folium
 streamlit-folium
 networkx
 geopy
-torch
 scikit-learn
+joblib
